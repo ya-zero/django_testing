@@ -53,3 +53,9 @@ def author_client(author):  # Вызываем фикстуру автора.
     client = Client()
     client.force_login(author)  # Логиним автора в клиенте.
     return client
+
+@pytest.fixture
+def not_author_client(django_user_model):
+    client = Client()
+    client.force_login(django_user_model.objects.create(username='Не автор'))
+    return client

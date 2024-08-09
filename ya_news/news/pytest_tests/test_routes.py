@@ -33,15 +33,24 @@ def test_pages_detal_availability_for_anonymous_user(client, news):
 
 
 # 3 Страницы удаления и редактирования комментария доступны автору комментария.
+# проверим что она не достпна для не автора 
+@pytest.mark.parametrize(
+    'parametrized_client, expected_status',
+    (
+        (pytest.lazy_fixture('not_author_client'), HTTPStatus.NOT_FOUND),
+        (pytest.lazy_fixture('author_client'), HTTPStatus.OK),
+    ),
+)
 @pytest.mark.parametrize(
     'name',  # Имя параметра функции.
     # Значения, которые будут передаваться в name.
     ('news:edit', 'news:delete')
     )
 @pytest.mark.django_db
-def test_comment_availability_for_auth_user(author_client, name, comment):
+def test_comment_availability_for_auth_user(parametrized_client, expected_status, name, comment):
     # Получаем ссылку на нужный адрес.
-    print('comment id:', comment.pk)
+    # print('comment id: %s author:%s' % (comment.pk, comment.author))
     url = reverse(name, args=(comment.pk,))
-    response = author_client.get(url)  # Выполняем запрос.
-    assert response.status_code == HTTPStatus.OK
+    response = parametrized_client.get(url)  # Выполняем запрос.
+    assert response.status_code == expected_status
+
