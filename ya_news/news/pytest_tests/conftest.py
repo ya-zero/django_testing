@@ -42,20 +42,7 @@ def news():
     )
     return post
 
+
 @pytest.fixture
 def comment(news, author):
     return Comment.objects.create(news=news, author=author, text='Текст')
-
-
-@pytest.fixture
-def author_client(author):  # Вызываем фикстуру автора.
-    # Создаём новый экземпляр клиента, чтобы не менять глобальный.
-    client = Client()
-    client.force_login(author)  # Логиним автора в клиенте.
-    return client
-
-@pytest.fixture
-def not_author_client(django_user_model):
-    client = Client()
-    client.force_login(django_user_model.objects.create(username='Не автор'))
-    return client
