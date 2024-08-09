@@ -34,19 +34,29 @@ def test_pages_detal_availability_for_anonymous_user(client, news):
 
 # 3 Страницы удаления и редактирования комментария доступны автору комментария.
 # проверим что она не достпна для не автора 
+
+# Добавляем к тесту ещё один декоратор parametrize; в его параметры
+# нужно передать фикстуры-клиенты и ожидаемый код ответа для каждого клиента.
 @pytest.mark.parametrize(
+    # parametrized_client - название параметра, 
+    # в который будут передаваться фикстуры;
+    # Параметр expected_status - ожидаемый статус ответа.
     'parametrized_client, expected_status',
+    # Предварительно оборачиваем имена фикстур 
+    # в вызов функции pytest.lazy_fixture().
     (
         (pytest.lazy_fixture('not_author_client'), HTTPStatus.NOT_FOUND),
-        (pytest.lazy_fixture('author_client'), HTTPStatus.OK),
+        (pytest.lazy_fixture('author_client'), HTTPStatus.OK)
     ),
 )
+
 @pytest.mark.parametrize(
     'name',  # Имя параметра функции.
     # Значения, которые будут передаваться в name.
     ('news:edit', 'news:delete')
     )
 @pytest.mark.django_db
+# В параметры теста добавляем имена parametrized_client и expected_status.
 def test_comment_availability_for_auth_user(parametrized_client, expected_status, name, comment):
     # Получаем ссылку на нужный адрес.
     # print('comment id: %s author:%s' % (comment.pk, comment.author))
@@ -54,3 +64,5 @@ def test_comment_availability_for_auth_user(parametrized_client, expected_status
     response = parametrized_client.get(url)  # Выполняем запрос.
     assert response.status_code == expected_status
 
+
+# 4 При попытке перейти на страницу редактирования или удаления комментария анонимный пользователь перенаправляется на страницу авторизации.
