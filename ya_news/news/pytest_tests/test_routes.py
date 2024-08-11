@@ -59,10 +59,8 @@ def test_pages_detal_availability_for_anonymous_user(client, news):
 # В параметры теста добавляем имена parametrized_client и expected_status.
 def test_comment_availability_for_auth_user(parametrized_client, expected_status, name, comment):
     # Получаем ссылку на нужный адрес.
-    # print('comment id: %s author:%s' % (comment.pk, comment.author))
     url = reverse(name, args=(comment.pk,))
     response = parametrized_client.get(url)  # Выполняем запрос.
-    print(response)
     assert response.status_code == expected_status
 
 
@@ -84,9 +82,6 @@ def test_redirects(client, name, args):
     login_url = reverse('users:login')
     # Теперь не надо писать никаких if и можно обойтись одним выражением.
     url = reverse(name, args=args)
-    print('url:', url)
     expected_url = f'{login_url}?next={url}'
-    print('expected_url:',expected_url)
     response = client.get(url)
-    print('response:',response) # содержит 302
     assertRedirects(response, expected_url)
