@@ -4,8 +4,9 @@ import pytest
 # Импортируем класс клиента.
 from django.test.client import Client
 
-# Импортируем модель заметки, чтобы создать экземпляр.
+# Импортируем модель новости, чтобы создать экземпляр.
 from news.models import News, Comment
+from django.conf import settings
 
 
 @pytest.fixture
@@ -36,11 +37,20 @@ def not_author_client(not_author):
 
 @pytest.fixture
 def news():
-    post = News.objects.create(  # Создаём объект заметки.
+    post = News.objects.create(  # Создаём объект новости.
         title='Заголовок',
-        text='Текст заметки',
+        text='Текст новости',
     )
     return post
+
+
+@pytest.fixture
+def more_news(db):
+    for _ in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1):
+        News.objects.create(  # Создаём объект новости.
+            title='Заголовок',
+            text='Текст новости',
+        )
 
 
 @pytest.fixture
@@ -49,8 +59,8 @@ def comment(news, author):
 
 
 @pytest.fixture
-# Фикстура запрашивает другую фикстуру создания заметки.
-def pk_for_args(comment):  
-    # И возвращает кортеж, который содержит slug заметки.
+# Фикстура запрашивает другую фикстуру создания новости.
+def pk_for_args(comment):
+    # И возвращает кортеж, который содержит id новости.
     # На то, что это кортеж, указывает запятая в конце выражения.
-    return (comment.pk,) 
+    return (comment.pk,)

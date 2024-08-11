@@ -6,6 +6,7 @@ from news.models import News
 from pytest_django.asserts import assertContains
 from pytest_django.asserts import assertRedirects
 
+
 # Пункты 1,6
 # Главная страница доступна анонимному пользователю.
 # Страницы регистрации пользователей, входа в учётную запись и выхода
@@ -32,42 +33,43 @@ def test_pages_detal_availability_for_anonymous_user(client, news):
     assert response.status_code == HTTPStatus.OK
 
 
-# 3,5 Страницы удаления и редактирования комментария доступны автору комментария.
-# проверим что она не достпна для не автора
+# 3,5 Страницы удаления и редактирования комментария доступны
+# автору комментария.проверим что она не достпна для не автора
 
 # Добавляем к тесту ещё один декоратор parametrize; в его параметры
 # нужно передать фикстуры-клиенты и ожидаемый код ответа для каждого клиента.
 @pytest.mark.parametrize(
-    # parametrized_client - название параметра, 
+    # parametrized_client - название параметра,
     # в который будут передаваться фикстуры;
     # Параметр expected_status - ожидаемый статус ответа.
     'parametrized_client, expected_status',
-    # Предварительно оборачиваем имена фикстур 
+    # Предварительно оборачиваем имена фикстур
     # в вызов функции pytest.lazy_fixture().
     (
         (pytest.lazy_fixture('not_author_client'), HTTPStatus.NOT_FOUND),
         (pytest.lazy_fixture('author_client'), HTTPStatus.OK)
     ),
 )
-
 @pytest.mark.parametrize(
     'name',  # Имя параметра функции.
     # Значения, которые будут передаваться в name.
     ('news:edit', 'news:delete')
-    )
+)
 @pytest.mark.django_db
 # В параметры теста добавляем имена parametrized_client и expected_status.
-def test_comment_availability_for_auth_user(parametrized_client, expected_status, name, comment):
+def test_comment_availability_for_auth_user(parametrized_client,
+                                            expected_status, name, comment):
     # Получаем ссылку на нужный адрес.
     url = reverse(name, args=(comment.pk,))
     response = parametrized_client.get(url)  # Выполняем запрос.
     assert response.status_code == expected_status
 
 
-# 4 При попытке перейти на страницу редактирования или удаления комментария анонимный пользователь перенаправляется на страницу авторизации.
-
+# 4 При попытке перейти на страницу редактирования
+# или удаления комментария анонимный
+# пользователь перенаправляется на страницу авторизации.
 @pytest.mark.parametrize(
-    # Вторым параметром передаём note_object, 
+    # Вторым параметром передаём note_object,
     # в котором будет либо фикстура с объектом заметки, либо None.
     'name, args',
     (
