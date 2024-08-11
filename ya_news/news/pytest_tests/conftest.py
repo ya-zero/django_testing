@@ -46,3 +46,11 @@ def news():
 @pytest.fixture
 def comment(news, author):
     return Comment.objects.create(news=news, author=author, text='Текст')
+
+
+@pytest.fixture
+# Фикстура запрашивает другую фикстуру создания заметки.
+def pk_for_args(comment):  
+    # И возвращает кортеж, который содержит slug заметки.
+    # На то, что это кортеж, указывает запятая в конце выражения.
+    return (comment.pk,) 

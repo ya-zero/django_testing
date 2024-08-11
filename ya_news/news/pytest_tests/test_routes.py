@@ -4,7 +4,7 @@ from http import HTTPStatus
 from django.urls import reverse
 from news.models import News
 from pytest_django.asserts import assertContains
-
+from pytest_django.asserts import assertRedirects
 
 # Пункты 1,6
 # Главная страница доступна анонимному пользователю.
@@ -66,3 +66,26 @@ def test_comment_availability_for_auth_user(parametrized_client, expected_status
 
 
 # 4 При попытке перейти на страницу редактирования или удаления комментария анонимный пользователь перенаправляется на страницу авторизации.
+
+@pytest.mark.parametrize(
+    # Вторым параметром передаём note_object, 
+    # в котором будет либо фикстура с объектом заметки, либо None.
+    'name, args',
+    (
+        ('news:edit', pytest.lazy_fixture('pk_for_args')),
+        ('news:delete', pytest.lazy_fixture('pk_for_args')),
+
+    ),
+)
+@pytest.mark.django_db
+# Передаём в тест анонимный клиент, name проверяемых страниц и note_object:
+def test_redirects(client, name, args):
+    login_url = reverse('users:login')
+    # Теперь не надо писать никаких if и можно обойтись одним выражением.
+    url = reverse(name, args=args)
+    print('url:', url)
+    expected_url = f'{login_url}?next={url}'
+    print('expected_url:',expected_url)
+    response = client.get(url)
+    print('response:',response) # содержит 302
+    assertRedirects(response, expected_url)
