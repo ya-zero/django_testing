@@ -7,7 +7,7 @@ from django.test.client import Client
 # Импортируем модель новости, чтобы создать экземпляр.
 from news.models import News, Comment
 from django.conf import settings
-
+from django.utils import timezone
 
 @pytest.fixture
 # Используем встроенную фикстуру для модели пользователей django_user_model.
@@ -46,10 +46,12 @@ def news():
 
 @pytest.fixture
 def more_news(db):
+    now = timezone.now()
     for _ in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1):
         News.objects.create(  # Создаём объект новости.
-            title='Заголовок',
+            title='Заголовок'+ str(_),
             text='Текст новости',
+            date=now - timezone.timedelta(days=_)
         )
 
 

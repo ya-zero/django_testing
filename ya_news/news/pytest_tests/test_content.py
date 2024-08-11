@@ -32,7 +32,7 @@ def test_create_comment_page_contains_form(
     на странице отдельной новости,а авторизованному доступна
     """
     url = reverse(name, args=args)
-    # Запрашиваем страницу создания заметки:
+    # Запрашиваем страницу создания новости:
     response = parametrized_client.get(url)
     # Проверяем, есть ли объект form в словаре контекста:
     assert ('form' in response.context) == form_in_list
@@ -48,3 +48,15 @@ def test_news_count_posts(client, more_news):
     response = client.get(url)
     object_list = response.context['object_list']
     assert len(object_list) == settings.NEWS_COUNT_ON_HOME_PAGE
+
+
+
+# 2 Новости отсортированы от самой свежей к самой старой. Свежие новости в начале списка
+@pytest.mark.django_db
+def test_news_sort_posts(client, more_news):
+    """Пункт 1 Количество новостей на главной странице — не более 10."""
+    url = reverse('news:home')
+    response = client.get(url)
+    object_list = response.context['object_list']
+    sorted_news_list = sorted(object_list, key=lambda x: x.date, reverse=True)
+    assert list(object_list) == sorted_news_list
