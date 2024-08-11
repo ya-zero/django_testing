@@ -32,8 +32,8 @@ def test_pages_detal_availability_for_anonymous_user(client, news):
     assert response.status_code == HTTPStatus.OK
 
 
-# 3 Страницы удаления и редактирования комментария доступны автору комментария.
-# проверим что она не достпна для не автора 
+# 3,5 Страницы удаления и редактирования комментария доступны автору комментария.
+# проверим что она не достпна для не автора
 
 # Добавляем к тесту ещё один декоратор parametrize; в его параметры
 # нужно передать фикстуры-клиенты и ожидаемый код ответа для каждого клиента.
@@ -62,6 +62,7 @@ def test_comment_availability_for_auth_user(parametrized_client, expected_status
     # print('comment id: %s author:%s' % (comment.pk, comment.author))
     url = reverse(name, args=(comment.pk,))
     response = parametrized_client.get(url)  # Выполняем запрос.
+    print(response)
     assert response.status_code == expected_status
 
 
