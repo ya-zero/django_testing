@@ -9,6 +9,7 @@ from news.models import News, Comment
 from django.conf import settings
 from django.utils import timezone
 
+
 @pytest.fixture
 # Используем встроенную фикстуру для модели пользователей django_user_model.
 def author(django_user_model):
