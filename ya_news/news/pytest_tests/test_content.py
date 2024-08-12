@@ -55,23 +55,19 @@ def test_news_count_posts(client, more_news):
 def test_news_sort(client, more_news):
     """2 Новости отсортированы от самой свежей к самой старой. Свежие новости в начале списка"""
     # Создаем тестовые новости с разными датами, если нет fixture more_news
-    #older_news = News.objects.create(title='Old News', date=timezone.now() - timedelta(days=2))
-    #newer_news = News.objects.create(title='New News', date=timezone.now())
-    #response = client.get(reverse('news_list'))
-    #news_titles = [news.title for news in response.context['object_list']]
-    #assert news_titles[0] == newer_news.title  # Новый должен быть первым
-    #assert news_titles[1] == older_news.title   # Старый должен быть вторым
-    url = reverse('news:home')
-    response = client.get(url)
-    object_list = response.context['object_list']
-    # вариант 1
-    # news_list = [news.date for news in response.context['object_list']]
-    # assert news_list == sorted(news_list,reverse=True)
-    # Вариант 2
-    sorted_news_list = sorted(object_list, key=lambda x: x.date,reverse=True)
-    assert list(object_list) == sorted_news_list
+    older_news = News.objects.create(title='Old News', text='Old News Text', date=timezone.now() - timedelta(days=2))
+    newer_news = News.objects.create(title='New News', text='New News Text', date=timezone.now())
+    response = client.get(reverse('news:home'))
+    news_titles = [news.title for news in response.context['object_list']]
+    assert news_titles[0] == newer_news.title  # Новый должен быть первым
+    assert news_titles[1] == older_news.title   # Старый должен быть вторым
 
 
-#3 Комментарии на странице отдельной новости отсортированы в хронологическом порядке: старые в начале списка, новые — в конце.
 @pytest.mark.django_db
 def test_news_sort(client, more_news):
+    """
+    #Пункт 3 Комментарии на странице отдельной новости отсортированы в 
+    # хронологическом порядке: старые в начале списка, новые — в конце.
+    """
+    response = client.get(reverse('news:home'))
+    
