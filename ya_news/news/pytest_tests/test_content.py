@@ -3,7 +3,9 @@ import pytest
 from django.urls import reverse
 from news.forms import CommentForm
 from django.conf import settings
-
+from news.models import News, Comment
+from django.utils import timezone
+from datetime import timedelta
 
 @pytest.mark.parametrize(
     'name, args',
@@ -52,7 +54,7 @@ def test_news_count_posts(client, more_news):
 
 
 @pytest.mark.django_db
-def test_news_sort(client, more_news):
+def test_news_sort(client):
     """2 Новости отсортированы от самой свежей к самой старой. Свежие новости в начале списка"""
     # Создаем тестовые новости с разными датами, если нет fixture more_news
     older_news = News.objects.create(title='Old News', text='Old News Text', date=timezone.now() - timedelta(days=2))
@@ -64,10 +66,15 @@ def test_news_sort(client, more_news):
 
 
 @pytest.mark.django_db
-def test_news_sort(client, more_news):
+def test_comment_sort(client, author, news):
     """
     #Пункт 3 Комментарии на странице отдельной новости отсортированы в 
     # хронологическом порядке: старые в начале списка, новые — в конце.
     """
-    response = client.get(reverse('news:home'))
-    
+    older_coment=Comment.objects.create(news=news, author=author, text='Текст 0',created = timezone.now() - timedelta(days=2))
+    newer_coment=Comment.objects.create(news=news, author=author, text='Текст 1',created = timezone.now())
+    response = client.get(reverse('news:detail', args=(news.pk,)))
+    comment_titles = [comment.text for comment in response.context['news'].comment_set.all()]
+    assert comment_titles[0] == older_coment.text   # Старый должен быть первым 
+    assert comment_titles[1] == newer_coment.text  # Новый должен быть вторым
+
