@@ -1,13 +1,12 @@
 # conftest.py
 import pytest
-
+from django.conf import settings
 # Импортируем класс клиента.
 from django.test.client import Client
+from django.utils import timezone
 
 # Импортируем модель новости, чтобы создать экземпляр.
-from news.models import News, Comment
-from django.conf import settings
-from django.utils import timezone
+from news.models import Comment, News
 
 
 @pytest.fixture

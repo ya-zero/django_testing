@@ -1,11 +1,13 @@
 # test_content.py
-import pytest
-from django.urls import reverse
-from news.forms import CommentForm
-from django.conf import settings
-from news.models import News, Comment
-from django.utils import timezone
 from datetime import timedelta
+
+import pytest
+from django.conf import settings
+from django.urls import reverse
+from django.utils import timezone
+
+from news.forms import CommentForm
+from news.models import Comment, News
 
 
 @pytest.mark.parametrize(

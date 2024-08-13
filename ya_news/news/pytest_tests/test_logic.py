@@ -1,9 +1,12 @@
+from http import HTTPStatus
+
 import pytest
 from django.urls import reverse
-from news.models import News, Comment
 from pytest_django.asserts import assertRedirects
+
 from news.forms import BAD_WORDS, WARNING
-from http import HTTPStatus
+from news.models import Comment, News
+
 
 @pytest.mark.django_db
 def test_anonymous_user_cant_create_note(client,news, form_data):
