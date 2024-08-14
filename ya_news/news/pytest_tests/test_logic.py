@@ -5,11 +5,11 @@ from django.urls import reverse
 from pytest_django.asserts import assertRedirects
 
 from news.forms import BAD_WORDS, WARNING
-from news.models import Comment, News
+from news.models import Comment
 
 
 @pytest.mark.django_db
-def test_anonymous_user_cant_create_note(client,news, form_data):
+def test_anonymous_user_cant_create_note(client, news, form_data):
     """Пункт1 Анонимный пользователь не может отправить комментарий."""
     url = reverse('news:edit', args=(news.pk,))
     # Через анонимный клиент пытаемся создать заметку:
@@ -21,26 +21,28 @@ def test_anonymous_user_cant_create_note(client,news, form_data):
     # Считаем количество заметок в БД, ожидаем 0 заметок.
     assert Comment.objects.count() == 0
 
+
 @pytest.mark.django_db
-def test_user_cant_comment_bad_words(author_client,news):
+def test_user_cant_comment_bad_words(author_client, news):
     """
-    Пункт 2 Если комментарий содержит запрещённые слова, он не будет опубликован, а форма вернёт ошибку.
+    Пункт 2 Если комментарий содержит запрещённые слова, он не будет
+    опубликован, а форма вернёт ошибку.
     """
-    form_data={'text': f'Привет {BAD_WORDS[0]}',}
+    form_data = {'text': f'Привет {BAD_WORDS[0]}', }
     url = reverse('news:detail', args=(news.pk,))
     response = author_client.post(url, data=form_data)
     assert WARNING in response.context['form'].errors['text']
     # Считаем количество заметок в БД, ожидаем 0 заметок.
     assert Comment.objects.count() == 0
 
+
 @pytest.mark.django_db
-def test_auth_user_send_comment(author_client,news,author,):
-    """
-    Пункт 3 Авторизованный пользователь может отправить комментарий.
-    """
-    form_data={'text': f'Привет я {author}',}
+def test_auth_user_send_comment(author_client, news, author,):
+    """Пункт 3 Авторизованный пользователь может отправить комментарий."""
+    form_data = {'text': f'Привет я {author}', }
     url = reverse('news:detail', args=(news.pk,))
     response = author_client.post(url, data=form_data)
+    assertRedirects(response, reverse(url) + '#comments')
     assert Comment.objects.count() == 1
     comment_from_db = Comment.objects.get()
     assert comment_from_db.text == form_data['text']
@@ -49,36 +51,60 @@ def test_auth_user_send_comment(author_client,news,author,):
 
 
 @pytest.mark.django_db
-def test_auth_user_send_comment(author_client,news,comment,pk_for_args,author):
+def test_auth_user_add_comment(
+    author_client,
+    news,
+    comment,
+    pk_for_args,
+    author
+):
     """
-    Пункт 4 Авторизованный пользователь может редактировать или удалять свои комментарии.
+    Пункт 4 Авторизованный пользователь может редактировать
+    или удалять свои комментарии.
     """
     # Новый текст
-    form_data={'text': f'Привет я {author}',}
+    form_data = {'text': f'Привет я {author}', }
     # Редактирование коментария
     url = reverse('news:edit', args=pk_for_args)
     # В POST-запросе на адрес редактирования заметки
-    # отправляем form_data - новые значения для полей заметки   
+    # отправляем form_data - новые значения для полей заметки
     response = author_client.post(url, data=form_data)
     assert response.status_code == HTTPStatus.FOUND
-    assertRedirects(response, reverse('news:detail', args=pk_for_args) + '#comments')
+    assertRedirects(response, reverse(
+        'news:detail',
+        args=pk_for_args)
+        + '#comments'
+    )
     comment.refresh_from_db()
     assert comment.text == form_data['text']
     assert comment.author == author
     assert comment.news == news
-    # Удаление коментария 
+    # Удаление коментария
     response = author_client.post(reverse('news:delete', args=pk_for_args))
     assert response.status_code == HTTPStatus.FOUND
-    #test_auth_user_send_comment <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/news/1/#comments">
-    assertRedirects(response, reverse('news:detail',args=pk_for_args) + "#comments")
+    # test_auth_user_send_comment <HttpResponseRedirect status_code=302,
+    # "text/html; charset=utf-8", url="/news/1/#comments">
+    assertRedirects(response, reverse(
+        'news:detail',
+        args=pk_for_args)
+        + "#comments"
+    )
     assert Comment.objects.count() == 0
 
+
 @pytest.mark.django_db
-def test_auth_user_send_comment(not_author_client,news,comment,pk_for_args,not_author):
+def test_auth_user_send_comment(
+    not_author_client,
+    news,
+    comment,
+    pk_for_args,
+    not_author
+):
     """
-    Пункт 5 Авторизованный пользователь не может редактировать или удалять чужие комментарии
+    Пункт 5 Авторизованный пользователь не может редактировать
+    или удалять чужие комментарии
     """
-    form_data={'text': f'Привет я {not_author}',}
+    form_data = {'text': f'Привет я {not_author}', }
     # Редактирование коментария
     url = reverse('news:edit', args=pk_for_args)
     response = not_author_client.post(url, data=form_data)

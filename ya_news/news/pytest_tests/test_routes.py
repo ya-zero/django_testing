@@ -3,9 +3,7 @@ from http import HTTPStatus
 
 import pytest
 from django.urls import reverse
-from pytest_django.asserts import assertContains, assertRedirects
-
-from news.models import News
+from pytest_django.asserts import assertRedirects
 
 
 # Пункты 1,6

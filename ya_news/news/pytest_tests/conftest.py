@@ -49,7 +49,7 @@ def more_news(db):
     now = timezone.now()
     for _ in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1):
         News.objects.create(  # Создаём объект новости.
-            title='Заголовок'+ str(_),
+            title='Заголовок' + str(_),
             text='Текст новости',
             date=now - timezone.timedelta(days=_)
         )
@@ -67,9 +67,10 @@ def pk_for_args(comment):
     # На то, что это кортеж, указывает запятая в конце выражения.
     return (comment.pk,)
 
+
 # Добавляем фикстуру form_data
 @pytest.fixture
 def form_data():
     return {
         'text': 'Новый текст',
-    } 
+    }
