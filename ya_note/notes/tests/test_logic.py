@@ -1,16 +1,14 @@
 # # ya_note/notes/tests/test_logic.py
 from http import HTTPStatus
-from pytils.translit import slugify
-from django.test import TestCase, Client
+
 # Импортируем функцию для определения модели пользователя.
 from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
 # Импортируем функцию reverse(), она понадобится для получения адреса страницы.
 from django.urls import reverse
-
-from pytils.translit import slugify
-
-from notes.forms import  WARNING
+from notes.forms import WARNING
 from notes.models import Note
+from pytils.translit import slugify
 
 # Получаем модель пользователя.
 User = get_user_model()
