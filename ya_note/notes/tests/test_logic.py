@@ -122,7 +122,7 @@ class TestLogicEdit(TestCase):
         self.assertEqual(self.note.text, self.NOTE_TEXT)
 
     def test_another_user_delete_notes(self):
-        """Пользователь не может  удалять свои заметки чужие заметки"""
+        """Пользователь не может  удалять чужие заметки"""
         response = self.another_client.delete(
             reverse('notes:delete', args=(self.note.slug,))
         )
