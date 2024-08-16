@@ -74,6 +74,7 @@ class TestLogic(TestCase):
 class TestLogicEdit(TestCase):
     NOTE_TEXT = 'Текст комментария'
     NEW_NOTE_TEXT = 'Обновлённый комментарий'
+
     @classmethod
     def setUpTestData(cls):
         cls.form_data = {
@@ -97,8 +98,9 @@ class TestLogicEdit(TestCase):
     def test_user_edit_notes(self):
         """Пользователь может редактировать"""
         response = self.auth_client.post(
-           reverse('notes:edit', args=(self.note.slug,)),
-           data=self.form_data)
+            reverse('notes:edit', args=(self.note.slug,)),
+            data=self.form_data
+        )
         self.assertRedirects(response, reverse('notes:success'))
         self.note.refresh_from_db()
         self.assertEqual(self.note.text, self.form_data['text'])
@@ -110,12 +112,12 @@ class TestLogicEdit(TestCase):
         )
         self.assertRedirects(response, reverse('notes:success'))
         self.assertEqual(Note.objects.count(), 0)
-    # another user
+
     def test_another_user_edit_notes(self):
         """Пользователь не может редактировать чужие заметки"""
         response = self.another_client.post(
-           reverse('notes:edit', args=(self.note.slug,)),
-           data=self.form_data)
+            reverse('notes:edit', args=(self.note.slug,)),
+            data=self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         # Убедимся, что заметки по-прежнему на месте.
         self.note.refresh_from_db()
